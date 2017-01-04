@@ -2,7 +2,7 @@
 var w = window.innerWidth,
 	h = window.innerHeight,
 	cRadius = Math.max(w, h) / 8,
-	i = 0;
+	i = 1;
 
 var svg = d3.select("body")
 	.append("svg")
@@ -14,7 +14,7 @@ var svg = d3.select("body")
 // import data
 d3.csv("projects/heart_rate_time_series.csv", function (data) {
 
-	var dom = [d3.min(data), d3.max(data)];
+	var dom = [80, 105];
 	var dSize = data.length;
 
 	console.log();
@@ -22,7 +22,7 @@ d3.csv("projects/heart_rate_time_series.csv", function (data) {
 	// set up scale
 	var innerScale = d3.scale.linear()
 		.domain(dom)
-		.range([0, cRadius]);
+		.range([25, cRadius]);
 
 	var colorScale = d3.scale.linear()
 		.domain(dom)
@@ -45,40 +45,40 @@ d3.csv("projects/heart_rate_time_series.csv", function (data) {
 
 	var beat = function () {
 
-		var newVal = data[i % dSize];
+		var val = data[i % dSize];
 
 		svg.selectAll("circle")
 			.transition()
-			.duration(1000)
+			.duration(100)
 			.attr({
-				cx: w / 2,
-				cy: h / 2,
 				fill: function (d) {
-					return colorScale(newVal.beat);
+					return colorScale(val.beat);
 				},
 				r: function (d) {
-					return innerScale(newVal.beat);
+					return innerScale(val.beat);
 				}
 			})
-		i++;
+		i++
 	};
 
 	// set up timer
 
 	var beatInterval = setInterval(function () {
 		beat();
-	}, 5000);
+	}, 100);
 
 	// set up mouse handlers
 
 	var handleMouseOver = function () {
 		clearInterval(beatInterval);
+		svg.selectAll("circle")
+			.attr("fill", "black")
 	};
 
 	var handleMouseOut = function () {
 		beatInterval = setInterval(function () {
 			beat();
-		}, 5000);
+		}, 100);
 	};
 
 });
