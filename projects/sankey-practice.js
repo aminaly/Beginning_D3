@@ -1,28 +1,33 @@
 // set global vars
-var w = window.innerWidth,
-	h = window.innerHeight,
-	cRadius = Math.max(w, h) / 8,
+var width = window.innerWidth / 10,
+	height = window.innerHeight / 10,
+	cRadius = Math.max(width, height) / 8,
 	i = 1;
 
 var svg = d3.select("body")
 	.append("svg")
 	.attr({
-		width: w,
-		height: h
+		width: width,
+		height: height
 	});
 
-// load data
-d3.csv("/projects/sankey-practice.csv", function (dat) {
+// Set the sankey diagram properties
+var sankey = d3.sankey()
+	.nodeWidth(36)
+	.nodePadding(40)
+	.size([width, height]);
 
-	console.log(dat);
-	console.log(dat[0].source);
+var path = sankey.link();
+
+// load data
+d3.csv("/projects/sankey-practice.csv", function (data) {
 
 	var graph = {
 		"nodes": [],
 		"links": []
 	};
 
-	dat.forEach(function (d) {
+	data.forEach(function (d) {
 		graph.nodes.push({
 			"name": d.source
 		});
@@ -57,21 +62,12 @@ d3.csv("/projects/sankey-practice.csv", function (dat) {
 		};
 	});
 
-	var sankey = d3.sankey()
-		.size([w - 100, h - 100])
-		.nodeWidth(15)
-		.nodePadding(10)
+	sankey
 		.nodes(graph.nodes)
-		.links(graph.links);
+		.links(graph.links)
+		.layout(32);
 
-	var path = sankey.link();
-
-	var formatNumber = d3.format(",.0f"),
-		format = function (d) {
-			return formatNumber(d) + " TWh";
-		},
-		color = d3.scale.category20();
-
+	// add in the links
 	var link = svg.append("g")
 		.selectAll(".link")
 		.data(graph.links)
@@ -86,11 +82,14 @@ d3.csv("/projects/sankey-practice.csv", function (dat) {
 			return b.dy - a.dy;
 		});
 
+	// add the link titles
 	link.append("title")
 		.text(function (d) {
-			return d.source.name + " → " + d.target.name + "\n" + format(d.value);
+			return d.source.name + " → " +
+				d.target.name + "\n" + format(d.value);
 		});
 
+	// add in the nodes
 	var node = svg.append("g")
 		.selectAll(".node")
 		.data(graph.nodes)
@@ -109,6 +108,7 @@ d3.csv("/projects/sankey-practice.csv", function (dat) {
 			})
 			.on("drag", dragmove));
 
+	// add the rectangles for the nodes
 	node.append("rect")
 		.attr("height", function (d) {
 			return d.dy;
@@ -126,6 +126,7 @@ d3.csv("/projects/sankey-practice.csv", function (dat) {
 			return d.name + "\n" + format(d.value);
 		});
 
+	// add in the title for the nodes
 	node.append("text")
 		.attr("x", -6)
 		.attr("y", function (d) {
@@ -138,15 +139,20 @@ d3.csv("/projects/sankey-practice.csv", function (dat) {
 			return d.name;
 		})
 		.filter(function (d) {
-			return d.x < w / 2;
+			return d.x < width / 2;
 		})
 		.attr("x", 6 + sankey.nodeWidth())
 		.attr("text-anchor", "start");
 
+	// the function for moving the nodes
 	function dragmove(d) {
 		d3.select(this)
-			.attr("transform", "translate(" + d.x + "," + (d.y = Math.max(0, Math.min(height - d.dy, d3.event.y))) + ")");
+			.attr("transform",
+				"translate(" + d.x + "," + (
+					d.y = Math.max(0, Math.min(height - d.dy, d3.event.y))
+				) + ")");
 		sankey.relayout();
 		link.attr("d", path);
 	}
+
 });

@@ -6,6 +6,30 @@
    <script type="text/javascript" src="http://d3js.org/d3.v2.min.js"></script>
 	 <script type="text/javascript" src="./d3-plugins/sankey/sankey.js"></script>
  </head>
+ <style>
+
+.node rect {
+  cursor: move;
+  fill-opacity: .9;
+  shape-rendering: crispEdges;
+}
+
+.node text {
+  pointer-events: none;
+  text-shadow: 0 1px 0 #fff;
+}
+
+.link {
+  fill: none;
+  stroke: #000;
+  stroke-opacity: .2;
+}
+
+.link:hover {
+  stroke-opacity: .5;
+}
+
+</style>
  <body>
    <script type="text/javascript" src="./projects/sankey-practice.js"></script>
  </body>
