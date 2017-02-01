@@ -1,15 +1,28 @@
-// set global vars
-var width = window.innerWidth / 10,
-	height = window.innerHeight / 10,
-	cRadius = Math.max(width, height) / 8,
-	i = 1;
+var units = "Widgets";
 
-var svg = d3.select("body")
+var margin = {
+		top: 10,
+		right: 10,
+		bottom: 10,
+		left: 10
+	},
+	width = 700 - margin.left - margin.right,
+	height = 300 - margin.top - margin.bottom;
+
+var formatNumber = d3.format(",.0f"), // zero decimal places
+	format = function (d) {
+		return formatNumber(d) + " " + units;
+	},
+	color = d3.scale.category20();
+
+// append the svg canvas to the page
+var svg = d3.select("#chart")
 	.append("svg")
-	.attr({
-		width: width,
-		height: height
-	});
+	.attr("width", width + margin.left + margin.right)
+	.attr("height", height + margin.top + margin.bottom)
+	.append("g")
+	.attr("transform",
+		"translate(" + margin.left + "," + margin.top + ")");
 
 // Set the sankey diagram properties
 var sankey = d3.sankey()
@@ -19,10 +32,11 @@ var sankey = d3.sankey()
 
 var path = sankey.link();
 
-// load data
-d3.csv("/projects/sankey-practice.csv", function (data) {
-
-	var graph = {
+// load the data (using the timelyportfolio csv method)
+d3.csv("http://aljondo.github.io/sankey-practice.csv", function (data, error) {
+	console.log(data)
+		//set up graph in same style as original example but empty
+	graph = {
 		"nodes": [],
 		"links": []
 	};
@@ -154,5 +168,4 @@ d3.csv("/projects/sankey-practice.csv", function (data) {
 		sankey.relayout();
 		link.attr("d", path);
 	}
-
 });
